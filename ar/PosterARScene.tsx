@@ -20,15 +20,24 @@ interface PosterARSceneProps {
 }
 
 export default function PosterARScene({ onPosterDetected }: PosterARSceneProps) {
+  console.log('🎬 PosterARScene rendered');
+  
   return (
-    <ViroARScene>
+    <ViroARScene
+      onTrackingUpdated={(state, reason) => {
+        console.log('📍 AR Tracking:', state, reason);
+      }}
+    >
       <ViroAmbientLight color="#ffffff" intensity={500} />
 
       <ViroARImageMarker
         target="rockyPoster"
         onAnchorFound={() => {
-          console.log('✅ Poster found!');
+          console.log('✅✅✅ POSTER FOUND! ✅✅✅');
           onPosterDetected?.(true);
+        }}
+        onAnchorUpdated={(anchor) => {
+          console.log('🔄 Poster tracking updated:', anchor);
         }}
         onAnchorRemoved={() => {
           console.log('❌ Poster lost');
