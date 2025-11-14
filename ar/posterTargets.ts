@@ -10,6 +10,6 @@ ViroARTrackingTargets.createTargets({
   rockyPoster: {
     source: require('../assets/posters/rockyPoster.png'),
     orientation: 'Up',
-    physicalWidth: 0.3, // 30cm - adjust based on your printed poster
+    physicalWidth: 0.135, // 13.5cm average of your 12-15cm poster
   },
 });
