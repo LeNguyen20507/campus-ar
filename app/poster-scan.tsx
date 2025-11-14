@@ -9,22 +9,28 @@ import '../ar/posterTargets'; // Initialize tracking targets
 export default function PosterScanScreen() {
   const router = useRouter();
   const [isDetected, setIsDetected] = useState(false);
-  const [useTest, setUseTest] = useState(false); // Toggle between test and poster
+  const [useTest, setUseTest] = useState(false); // Start with poster mode
+
+  console.log('📱 PosterScanScreen rendered, useTest:', useTest);
 
   return (
     <View style={styles.container}>
       <ViroARSceneNavigator
         autofocus={true}
         initialScene={{
-          scene: () => useTest ? <TestARScene /> : <PosterARScene onPosterDetected={setIsDetected} />,
+          scene: () => {
+            console.log('🎬 Rendering scene, useTest:', useTest);
+            return useTest ? <TestARScene /> : <PosterARScene onPosterDetected={setIsDetected} />;
+          },
         }}
         style={styles.ar}
+        viroAppProps={{ useTest }}
       />
 
       {/* Status */}
       <View style={styles.status}>
         <Text style={styles.statusText}>
-          {useTest ? '🧪 Test Mode' : (isDetected ? '✅ Poster Detected!' : '🔍 Scanning...')}
+          {useTest ? '🧪 Test Mode - AR Works!' : (isDetected ? '✅ Poster Detected!' : '🔍 Point at printed poster...')}
         </Text>
       </View>
 
@@ -33,7 +39,7 @@ export default function PosterScanScreen() {
         style={styles.testBtn} 
         onPress={() => {
           setUseTest(!useTest);
-          console.log('Switching to:', !useTest ? 'TEST MODE' : 'POSTER MODE');
+          console.log('🔄 Switching to:', !useTest ? 'TEST MODE' : 'POSTER MODE');
         }}
       >
         <Text style={styles.testText}>{useTest ? '📸 Poster' : '🧪 Test'}</Text>
