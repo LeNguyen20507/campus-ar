@@ -21,32 +21,14 @@ import PosterARScene from '../ar/PosterARScene';
 
 export default function PosterScanScreen() {
   const router = useRouter();
-  const [score, setScore] = useState(0);
-  const [hasScannedPoster, setHasScannedPoster] = useState(false);
-  const [characterTaps, setCharacterTaps] = useState(0);
+  const [isPosterDetected, setIsPosterDetected] = useState(false);
 
-  const handlePosterFirstSeen = () => {
-    if (!hasScannedPoster) {
-      console.log('🎉 First poster scan!');
-      setHasScannedPoster(true);
-      setScore((s) => s + 10);
-      
-      // Haptic feedback
-      if (Haptics.notificationAsync) {
-        Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
-      }
-    }
+  const handlePosterFound = () => {
+    setIsPosterDetected(true);
   };
 
-  const handleCharacterTapped = () => {
-    console.log('👆 Character interaction');
-    setCharacterTaps((c) => c + 1);
-    setScore((s) => s + 5);
-    
-    // Haptic feedback
-    if (Haptics.impactAsync) {
-      Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
-    }
+  const handlePosterLost = () => {
+    setIsPosterDetected(false);
   };
 
   return (
@@ -57,57 +39,28 @@ export default function PosterScanScreen() {
         initialScene={{
           scene: () => (
             <PosterARScene
-              onPosterFirstSeen={handlePosterFirstSeen}
-              onCharacterTapped={handleCharacterTapped}
+              onPosterFound={handlePosterFound}
+              onPosterLost={handlePosterLost}
             />
           ),
         }}
         style={styles.arView}
       />
 
-      {/* HUD Overlay - Top */}
-      <View style={styles.topHUD}>
-        <View style={styles.scoreCard}>
-          <Text style={styles.scoreLabel}>Score</Text>
-          <Text style={styles.scoreValue}>{score}</Text>
-        </View>
-
-        <View style={styles.statusCard}>
-          <Text style={styles.statusDot}>
-            {hasScannedPoster ? '🟢' : '🔴'}
+      {/* Status at Bottom Center */}
+      <View style={styles.bottomStatus}>
+        <View style={[
+          styles.statusCard,
+          isPosterDetected && styles.statusCardDetected
+        ]}>
+          <Text style={styles.statusIcon}>
+            {isPosterDetected ? '✅' : '🔍'}
           </Text>
           <Text style={styles.statusText}>
-            {hasScannedPoster ? 'Poster Found!' : 'Scanning...'}
+            {isPosterDetected ? 'Poster Detected!' : 'Scanning...'}
           </Text>
         </View>
       </View>
-
-      {/* Instructions - Center */}
-      <View style={styles.centerInstructions}>
-        <Text style={styles.instructionTitle}>
-          {hasScannedPoster ? '✅ Poster Found!' : '🎯 Find the Poster'}
-        </Text>
-        <Text style={styles.instructionText}>
-          {hasScannedPoster 
-            ? 'Rocky is here! Tap him to interact!' 
-            : 'Point your camera at the Rocky poster'}
-        </Text>
-        {!hasScannedPoster && (
-          <Text style={styles.instructionSubtext}>
-            Works best with good lighting and a steady hand
-          </Text>
-        )}
-      </View>
-
-      {/* Stats - Bottom (only show after first scan) */}
-      {hasScannedPoster && (
-        <View style={styles.bottomHUD}>
-          <View style={styles.statCard}>
-            <Text style={styles.statValue}>{characterTaps}</Text>
-            <Text style={styles.statLabel}>Character Taps</Text>
-          </View>
-        </View>
-      )}
 
       {/* Exit Button */}
       <TouchableOpacity
@@ -117,17 +70,8 @@ export default function PosterScanScreen() {
           router.back();
         }}
       >
-        <Text style={styles.exitText}>✕ Exit</Text>
+        <Text style={styles.exitText}>✕</Text>
       </TouchableOpacity>
-
-      {/* Device Info (helpful for testing) */}
-      {__DEV__ && (
-        <View style={styles.debugInfo}>
-          <Text style={styles.debugText}>
-            Device: {Platform.OS === 'ios' ? (Platform.isPad ? 'iPad' : 'iPhone') : 'Android'}
-          </Text>
-        </View>
-      )}
     </View>
   );
 }
@@ -141,107 +85,36 @@ const styles = StyleSheet.create({
     flex: 1,
   },
 
-  // Top HUD
-  topHUD: {
+  // Bottom Status
+  bottomStatus: {
     position: 'absolute',
-    top: Platform.OS === 'ios' ? 60 : 40,
-    left: 20,
-    right: 20,
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'flex-start',
-  },
-  scoreCard: {
-    backgroundColor: 'rgba(0, 0, 0, 0.8)',
-    paddingVertical: 12,
-    paddingHorizontal: 20,
-    borderRadius: 12,
-    borderWidth: 2,
-    borderColor: '#FFD700',
-  },
-  scoreLabel: {
-    color: '#FFD700',
-    fontSize: 12,
-    fontWeight: '600',
-    marginBottom: 4,
-  },
-  scoreValue: {
-    color: '#fff',
-    fontSize: 28,
-    fontWeight: 'bold',
+    bottom: 50,
+    left: 0,
+    right: 0,
+    alignItems: 'center',
   },
   statusCard: {
-    backgroundColor: 'rgba(0, 0, 0, 0.8)',
-    paddingVertical: 12,
-    paddingHorizontal: 16,
-    borderRadius: 12,
+    backgroundColor: 'rgba(0, 0, 0, 0.85)',
+    paddingVertical: 16,
+    paddingHorizontal: 32,
+    borderRadius: 30,
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 8,
+    gap: 12,
+    borderWidth: 2,
+    borderColor: 'rgba(255, 255, 255, 0.3)',
   },
-  statusDot: {
-    fontSize: 12,
+  statusCardDetected: {
+    borderColor: '#4CAF50',
+    backgroundColor: 'rgba(76, 175, 80, 0.2)',
+  },
+  statusIcon: {
+    fontSize: 24,
   },
   statusText: {
     color: '#fff',
-    fontSize: 14,
+    fontSize: 18,
     fontWeight: '600',
-  },
-
-  // Center Instructions
-  centerInstructions: {
-    position: 'absolute',
-    top: '40%',
-    left: 20,
-    right: 20,
-    alignItems: 'center',
-    backgroundColor: 'rgba(0, 0, 0, 0.8)',
-    padding: 24,
-    borderRadius: 16,
-  },
-  instructionTitle: {
-    color: '#FFD700',
-    fontSize: 24,
-    fontWeight: 'bold',
-    marginBottom: 12,
-  },
-  instructionText: {
-    color: '#fff',
-    fontSize: 16,
-    textAlign: 'center',
-    marginBottom: 8,
-  },
-  instructionSubtext: {
-    color: '#aaa',
-    fontSize: 14,
-    textAlign: 'center',
-  },
-
-  // Bottom HUD
-  bottomHUD: {
-    position: 'absolute',
-    bottom: 40,
-    left: 20,
-    right: 20,
-    flexDirection: 'row',
-    justifyContent: 'center',
-  },
-  statCard: {
-    backgroundColor: 'rgba(0, 0, 0, 0.8)',
-    paddingVertical: 12,
-    paddingHorizontal: 24,
-    borderRadius: 12,
-    alignItems: 'center',
-  },
-  statValue: {
-    color: '#4A90E2',
-    fontSize: 24,
-    fontWeight: 'bold',
-  },
-  statLabel: {
-    color: '#fff',
-    fontSize: 12,
-    marginTop: 4,
   },
 
   // Exit Button
@@ -250,28 +123,15 @@ const styles = StyleSheet.create({
     top: Platform.OS === 'ios' ? 60 : 40,
     right: 20,
     backgroundColor: 'rgba(255, 107, 107, 0.9)',
-    paddingVertical: 10,
-    paddingHorizontal: 16,
-    borderRadius: 20,
+    width: 44,
+    height: 44,
+    borderRadius: 22,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   exitText: {
     color: '#fff',
-    fontSize: 16,
+    fontSize: 24,
     fontWeight: '600',
-  },
-
-  // Debug Info
-  debugInfo: {
-    position: 'absolute',
-    bottom: 10,
-    left: 10,
-    backgroundColor: 'rgba(0, 0, 0, 0.6)',
-    padding: 8,
-    borderRadius: 8,
-  },
-  debugText: {
-    color: '#fff',
-    fontSize: 12,
-    fontFamily: Platform.OS === 'ios' ? 'Courier' : 'monospace',
   },
 });

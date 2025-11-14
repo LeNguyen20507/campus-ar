@@ -22,42 +22,33 @@ import {
 import { POSTER_TARGET_ID } from './posterTargets';
 
 interface PosterARSceneProps {
-  onPosterFirstSeen?: () => void;
-  onCharacterTapped?: () => void;
+  onPosterFound?: () => void;
+  onPosterLost?: () => void;
 }
 
 export default function PosterARScene({
-  onPosterFirstSeen,
-  onCharacterTapped,
+  onPosterFound,
+  onPosterLost,
 }: PosterARSceneProps) {
-  const [hasTriggered, setHasTriggered] = useState(false);
   const [isTracking, setIsTracking] = useState(false);
 
   const handleAnchorFound = () => {
     console.log('✅ Poster detected!');
     setIsTracking(true);
-    
-    if (!hasTriggered) {
-      setHasTriggered(true);
-      onPosterFirstSeen?.();
-    }
+    onPosterFound?.();
   };
 
   const handleAnchorUpdated = () => {
-    // Poster is being tracked (camera can see it)
     if (!isTracking) {
       setIsTracking(true);
+      onPosterFound?.();
     }
   };
 
   const handleAnchorRemoved = () => {
-    console.log('⚠️ Poster lost - move closer or adjust angle');
+    console.log('⚠️ Poster lost');
     setIsTracking(false);
-  };
-
-  const handleCharacterClick = () => {
-    console.log('🎭 Character tapped!');
-    onCharacterTapped?.();
+    onPosterLost?.();
   };
 
   return (
@@ -78,15 +69,23 @@ export default function PosterARScene({
         onAnchorRemoved={handleAnchorRemoved}
       >
         <ViroNode position={[0, 0, 0]}>
-          {/* Welcome Text Box - positioned in center */}
+          {/* Rocky 3D Character Model - Left side */}
+          <Viro3DObject
+            source={require('../assets/models/rocky.glb')}
+            type="GLB"
+            position={[-0.15, 0, 0]}
+            scale={[0.08, 0.08, 0.08]}
+          />
+
+          {/* Text Box - Right side */}
           <ViroText
-            text="Poster Detected! 🎉"
-            width={0.5}
-            height={0.25}
-            position={[0, 0, 0]}
+            text="Hey! I'm Rocky! 🎉"
+            width={0.4}
+            height={0.2}
+            position={[0.15, 0, 0]}
             style={{
               fontFamily: 'Arial',
-              fontSize: 30,
+              fontSize: 24,
               color: '#FFD700',
               textAlign: 'center',
             }}
