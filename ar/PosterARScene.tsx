@@ -78,59 +78,31 @@ export default function PosterARScene({
         onAnchorRemoved={handleAnchorRemoved}
       >
         <ViroNode position={[0, 0, 0]}>
-          {/* Test all models at once - see which ones load */}
+          {/* Testing GLTF format as recommended by ViroReact docs */}
           
-          {/* 1. Test Duck (known-good) */}
+          {/* Rocky GLTF (your model) */}
+          <Viro3DObject
+            source={require('../assets/models/myrocky.gltf')}
+            type="GLTF"
+            position={[-0.2, 0, 0.15]}
+            scale={[0.1, 0.1, 0.1]}
+            rotation={[0, 0, 0]}
+            onLoadStart={() => console.log('🔄 Loading myrocky.gltf...')}
+            onLoadEnd={() => console.log('✅ myrocky.gltf LOADED!')}
+            onError={(event) => console.error('❌ myrocky.gltf error:', JSON.stringify(event.nativeEvent))}
+          />
+          
+          {/* Test Duck GLB for comparison */}
           <Viro3DObject
             source={require('../assets/models/test.glb')}
             type="GLB"
-            position={[-0.3, 0.15, 0.1]}
-            scale={[0.05, 0.05, 0.05]}
-            onLoadEnd={() => console.log('✅ test.glb (Duck) WORKS!')}
+            position={[0.2, 0, 0.15]}
+            scale={[0.1, 0.1, 0.1]}
+            onLoadEnd={() => console.log('✅ test.glb (Duck) LOADED')}
             onError={() => console.error('❌ test.glb FAILED')}
           />
-          
-          {/* 2. Rocky */}
-          <Viro3DObject
-            source={require('../assets/models/rocky.glb')}
-            type="GLB"
-            position={[-0.15, 0.15, 0.1]}
-            scale={[0.05, 0.05, 0.05]}
-            onLoadEnd={() => console.log('✅ rocky.glb WORKS!')}
-            onError={() => console.error('❌ rocky.glb FAILED')}
-          />
-          
-          {/* 3. Flower */}
-          <Viro3DObject
-            source={require('../assets/models/flower.glb')}
-            type="GLB"
-            position={[0, 0.15, 0.1]}
-            scale={[0.05, 0.05, 0.05]}
-            onLoadEnd={() => console.log('✅ flower.glb WORKS!')}
-            onError={() => console.error('❌ flower.glb FAILED')}
-          />
-          
-          {/* 4. Teacher */}
-          <Viro3DObject
-            source={require('../assets/models/teacher.glb')}
-            type="GLB"
-            position={[0.15, 0.15, 0.1]}
-            scale={[0.05, 0.05, 0.05]}
-            onLoadEnd={() => console.log('✅ teacher.glb WORKS!')}
-            onError={() => console.error('❌ teacher.glb FAILED')}
-          />
-          
-          {/* 5. Ghost (might be too large) */}
-          <Viro3DObject
-            source={require('../assets/models/ghost_ur.glb')}
-            type="GLB"
-            position={[0.3, 0.15, 0.1]}
-            scale={[0.05, 0.05, 0.05]}
-            onLoadEnd={() => console.log('✅ ghost_ur.glb WORKS!')}
-            onError={() => console.error('❌ ghost_ur.glb FAILED')}
-          />
 
-          {/* Text Box - shows which models loaded */}
+          {/* Text showing instructions */}
           <ViroText
             text="Hey! I'm Rocky! 🎉"
             width={0.4}
