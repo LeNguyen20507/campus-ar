@@ -32,7 +32,9 @@ export default function PosterScanScreen() {
       setScore((s) => s + 10);
       
       // Haptic feedback
-      Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+      if (Haptics.notificationAsync) {
+        Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+      }
     }
   };
 
@@ -42,14 +44,16 @@ export default function PosterScanScreen() {
     setScore((s) => s + 5);
     
     // Haptic feedback
-    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+    if (Haptics.impactAsync) {
+      Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+    }
   };
 
   return (
     <View style={styles.container}>
       {/* AR Camera View */}
       <ViroARSceneNavigator
-        autofocus
+        autofocus={true}
         initialScene={{
           scene: () => (
             <PosterARScene
@@ -59,6 +63,10 @@ export default function PosterScanScreen() {
           ),
         }}
         style={styles.arView}
+        viroAppProps={{
+          onPosterFirstSeen: handlePosterFirstSeen,
+          onCharacterTapped: handleCharacterTapped,
+        }}
       />
 
       {/* HUD Overlay - Top */}

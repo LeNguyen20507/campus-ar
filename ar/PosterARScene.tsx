@@ -20,7 +20,7 @@ import {
   ViroDirectionalLight,
 } from '@reactvision/react-viro';
 import { POSTER_TARGET_ID } from './posterTargets';
-import './posterTargets'; // Import once to register targets
+import rockyModel from '../assets/models/rocky.glb';
 
 interface PosterARSceneProps {
   onPosterFirstSeen?: () => void;
@@ -87,16 +87,16 @@ export default function PosterARScene({
           Poster center is at (0, 0, 0)
         */}
         <ViroNode position={[0, 0, 0]}>
-          
           {/* Rocky 3D Character Model */}
           <Viro3DObject
-            source={require('../assets/models/rocky.glb')}
+            source={rockyModel}
             type="GLB"
             position={[-0.2, 0, 0]}
             scale={[0.1, 0.1, 0.1]}
             onClick={handleCharacterClick}
           />
 
+          {/* Welcome Text Box - positioned to the right of model */}
           {/* Welcome Text Box - positioned to the right of model */}
           <ViroText
             text="Welcome to Roc Spirit!"
