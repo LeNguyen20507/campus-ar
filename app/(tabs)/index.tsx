@@ -1,16 +1,13 @@
 import React, { useState, useEffect } from 'react';
-import { StyleSheet, TouchableOpacity, View, Text, Animated } from 'react-native';
+import { StyleSheet, TouchableOpacity, View, Text } from 'react-native';
 import { Camera, CameraView } from 'expo-camera';
 import { BlurView } from 'expo-blur';
+import { useRouter } from 'expo-router';
+import * as Haptics from 'expo-haptics';
 
 export default function HomeScreen() {
+  const router = useRouter();
   const [hasPermission, setHasPermission] = useState<boolean | null>(null);
-  const [isPlaying, setIsPlaying] = useState(false);
-  
-  // Animation values
-  const menuOpacity = new Animated.Value(1);
-  const gameUIOpacity = new Animated.Value(0);
-  const blurIntensity = new Animated.Value(100);
 
   useEffect(() => {
     (async () => {
@@ -18,33 +15,6 @@ export default function HomeScreen() {
       setHasPermission(status === 'granted');
     })();
   }, []);
-
-  const handleStartPlaying = () => {
-    setIsPlaying(true);
-
-    // Animate transitions
-    Animated.parallel([
-      // Fade out menu
-      Animated.timing(menuOpacity, {
-        toValue: 0,
-        duration: 500,
-        useNativeDriver: true,
-      }),
-      // Remove blur
-      Animated.timing(blurIntensity, {
-        toValue: 0,
-        duration: 600,
-        useNativeDriver: false,
-      }),
-      // Fade in game UI
-      Animated.timing(gameUIOpacity, {
-        toValue: 1,
-        duration: 500,
-        delay: 300,
-        useNativeDriver: true,
-      }),
-    ]).start();
-  };
 
   if (hasPermission === null) {
     return (
@@ -67,26 +37,13 @@ export default function HomeScreen() {
     <View style={styles.container}>
       {/* Camera Background */}
       <CameraView style={styles.camera} facing="back">
-        {/* Blur overlay when not playing */}
-        <Animated.View 
-          style={[
-            styles.blurContainer,
-            { opacity: isPlaying ? 0 : 1 }
-          ]}
-          pointerEvents={isPlaying ? 'none' : 'auto'}
-        >
+        {/* Blur overlay */}
+        <View style={styles.blurContainer}>
           <BlurView intensity={100} style={styles.blur} />
-        </Animated.View>
+        </View>
 
-        {/* Main Menu (Before Playing) */}
-        <Animated.View 
-          style={[
-            styles.menuContainer,
-            { opacity: menuOpacity },
-            !isPlaying && styles.visible
-          ]}
-          pointerEvents={isPlaying ? 'none' : 'auto'}
-        >
+        {/* Main Menu */}
+        <View style={styles.menuContainer}>
           {/* Title */}
           <View style={styles.titleContainer}>
             <Text style={styles.title}>Roc Spirit:</Text>
@@ -96,64 +53,26 @@ export default function HomeScreen() {
           {/* Buttons */}
           <View style={styles.buttonContainer}>
             <TouchableOpacity 
-              style={styles.playButton}
-              onPress={handleStartPlaying}
-            >
-              <Text style={styles.playButtonText}>🎮 Start Playing</Text>
-            </TouchableOpacity>
-
-            <TouchableOpacity 
-              style={styles.placeholderButton}
-              disabled
-            >
-              <Text style={styles.placeholderButtonText}>Coming Soon</Text>
-            </TouchableOpacity>
-          </View>
-        </Animated.View>
-
-        {/* Game UI (During Playing) */}
-        <Animated.View 
-          style={[
-            styles.gameUIContainer,
-            { opacity: gameUIOpacity }
-          ]}
-          pointerEvents={isPlaying ? 'auto' : 'none'}
-        >
-          {/* Top bar */}
-          <View style={styles.topBar}>
-            <View style={styles.scoreContainer}>
-              <Text style={styles.scoreLabel}>Score</Text>
-              <Text style={styles.scoreValue}>0</Text>
-            </View>
-            
-            <View style={styles.collectiblesContainer}>
-              <Text style={styles.collectiblesText}>📦 0/10</Text>
-            </View>
-          </View>
-
-          {/* Bottom actions */}
-          <View style={styles.bottomBar}>
-            <TouchableOpacity style={styles.actionButton}>
-              <Text style={styles.actionButtonText}>🗺️ Map</Text>
-            </TouchableOpacity>
-
-            <TouchableOpacity style={styles.actionButton}>
-              <Text style={styles.actionButtonText}>🎒 Inventory</Text>
-            </TouchableOpacity>
-
-            <TouchableOpacity 
-              style={[styles.actionButton, styles.menuButton]}
+              style={styles.scanButton}
               onPress={() => {
-                setIsPlaying(false);
-                menuOpacity.setValue(1);
-                gameUIOpacity.setValue(0);
-                blurIntensity.setValue(100);
+                Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+                router.push('/poster-scan');
               }}
             >
-              <Text style={styles.actionButtonText}>⏸️ Menu</Text>
+              <Text style={styles.scanButtonText}>📸 Scan Poster</Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity 
+              style={styles.mapButton}
+              onPress={() => {
+                Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+                // TODO: Navigate to map
+              }}
+            >
+              <Text style={styles.mapButtonText}>🗺️ Map View</Text>
             </TouchableOpacity>
           </View>
-        </Animated.View>
+        </View>
       </CameraView>
     </View>
   );
@@ -195,9 +114,6 @@ const styles = StyleSheet.create({
   blur: {
     flex: 1,
   },
-  visible: {
-    display: 'flex',
-  },
   
   // Main Menu Styles
   menuContainer: {
@@ -232,102 +148,38 @@ const styles = StyleSheet.create({
     maxWidth: 300,
     gap: 16,
   },
-  playButton: {
-    backgroundColor: 'rgba(255, 215, 0, 0.95)',
+  scanButton: {
+    backgroundColor: 'rgba(74, 144, 226, 0.95)',
     paddingVertical: 20,
     paddingHorizontal: 32,
     borderRadius: 16,
     alignItems: 'center',
-    shadowColor: '#FFD700',
+    shadowColor: '#4A90E2',
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.5,
     shadowRadius: 8,
     elevation: 8,
   },
-  playButtonText: {
-    color: '#000',
+  scanButtonText: {
+    color: '#fff',
     fontSize: 22,
     fontWeight: 'bold',
   },
-  placeholderButton: {
-    backgroundColor: 'rgba(128, 128, 128, 0.5)',
-    paddingVertical: 16,
+  mapButton: {
+    backgroundColor: 'rgba(76, 175, 80, 0.95)',
+    paddingVertical: 20,
     paddingHorizontal: 32,
     borderRadius: 16,
     alignItems: 'center',
-    borderWidth: 2,
-    borderColor: 'rgba(255, 255, 255, 0.3)',
+    shadowColor: '#4CAF50',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.5,
+    shadowRadius: 8,
+    elevation: 8,
   },
-  placeholderButtonText: {
-    color: 'rgba(255, 255, 255, 0.6)',
-    fontSize: 18,
-    fontWeight: '600',
-  },
-
-  // Game UI Styles
-  gameUIContainer: {
-    ...StyleSheet.absoluteFillObject,
-    justifyContent: 'space-between',
-  },
-  topBar: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'flex-start',
-    paddingTop: 60,
-    paddingHorizontal: 20,
-  },
-  scoreContainer: {
-    backgroundColor: 'rgba(0, 0, 0, 0.7)',
-    paddingVertical: 12,
-    paddingHorizontal: 20,
-    borderRadius: 12,
-  },
-  scoreLabel: {
-    color: '#FFD700',
-    fontSize: 12,
-    fontWeight: '600',
-    marginBottom: 4,
-  },
-  scoreValue: {
+  mapButtonText: {
     color: '#fff',
-    fontSize: 24,
+    fontSize: 22,
     fontWeight: 'bold',
-  },
-  collectiblesContainer: {
-    backgroundColor: 'rgba(0, 0, 0, 0.7)',
-    paddingVertical: 12,
-    paddingHorizontal: 20,
-    borderRadius: 12,
-  },
-  collectiblesText: {
-    color: '#fff',
-    fontSize: 18,
-    fontWeight: 'bold',
-  },
-  bottomBar: {
-    flexDirection: 'row',
-    justifyContent: 'space-around',
-    paddingBottom: 40,
-    paddingHorizontal: 20,
-    gap: 12,
-  },
-  actionButton: {
-    flex: 1,
-    backgroundColor: 'rgba(0, 0, 0, 0.7)',
-    paddingVertical: 16,
-    paddingHorizontal: 16,
-    borderRadius: 12,
-    alignItems: 'center',
-    borderWidth: 2,
-    borderColor: 'rgba(255, 255, 255, 0.2)',
-  },
-  menuButton: {
-    backgroundColor: 'rgba(255, 107, 107, 0.8)',
-    borderColor: 'rgba(255, 107, 107, 0.4)',
-  },
-  actionButtonText: {
-    color: '#fff',
-    fontSize: 16,
-    fontWeight: '600',
   },
 });
