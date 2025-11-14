@@ -63,10 +63,6 @@ export default function PosterScanScreen() {
           ),
         }}
         style={styles.arView}
-        viroAppProps={{
-          onPosterFirstSeen: handlePosterFirstSeen,
-          onCharacterTapped: handleCharacterTapped,
-        }}
       />
 
       {/* HUD Overlay - Top */}
@@ -87,17 +83,21 @@ export default function PosterScanScreen() {
       </View>
 
       {/* Instructions - Center */}
-      {!hasScannedPoster && (
-        <View style={styles.centerInstructions}>
-          <Text style={styles.instructionTitle}>🎯 Find the Poster</Text>
-          <Text style={styles.instructionText}>
-            Point your camera at the Meliora poster
-          </Text>
+      <View style={styles.centerInstructions}>
+        <Text style={styles.instructionTitle}>
+          {hasScannedPoster ? '✅ Poster Found!' : '🎯 Find the Poster'}
+        </Text>
+        <Text style={styles.instructionText}>
+          {hasScannedPoster 
+            ? 'Rocky is here! Tap him to interact!' 
+            : 'Point your camera at the Rocky poster'}
+        </Text>
+        {!hasScannedPoster && (
           <Text style={styles.instructionSubtext}>
             Works best with good lighting and a steady hand
           </Text>
-        </View>
-      )}
+        )}
+      </View>
 
       {/* Stats - Bottom (only show after first scan) */}
       {hasScannedPoster && (

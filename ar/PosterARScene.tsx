@@ -20,7 +20,6 @@ import {
   ViroDirectionalLight,
 } from '@reactvision/react-viro';
 import { POSTER_TARGET_ID } from './posterTargets';
-import rockyModel from '../assets/models/rocky.glb';
 
 interface PosterARSceneProps {
   onPosterFirstSeen?: () => void;
@@ -78,67 +77,20 @@ export default function PosterARScene({
         onAnchorUpdated={handleAnchorUpdated}
         onAnchorRemoved={handleAnchorRemoved}
       >
-        {/*
-          Coordinate system relative to poster center:
-          - X: left (-) / right (+)
-          - Y: down (-) / up (+)
-          - Z: into poster (-) / out toward camera (+)
-          
-          Poster center is at (0, 0, 0)
-        */}
         <ViroNode position={[0, 0, 0]}>
-          {/* Rocky 3D Character Model */}
-          <Viro3DObject
-            source={rockyModel}
-            type="GLB"
-            position={[-0.2, 0, 0]}
-            scale={[0.1, 0.1, 0.1]}
-            onClick={handleCharacterClick}
-          />
-
-          {/* Welcome Text Box - positioned to the right of model */}
-          {/* Welcome Text Box - positioned to the right of model */}
+          {/* Welcome Text Box - positioned in center */}
           <ViroText
-            text="Welcome to Roc Spirit!"
+            text="Poster Detected! 🎉"
             width={0.5}
             height={0.25}
-            position={[0.2, 0.2, 0]}
+            position={[0, 0, 0]}
             style={{
               fontFamily: 'Arial',
-              fontSize: 28,
+              fontSize: 30,
               color: '#FFD700',
               textAlign: 'center',
             }}
           />
-
-          {/* Subtitle text */}
-          <ViroText
-            text="Tap the character to begin your quest!"
-            width={0.5}
-            height={0.15}
-            position={[0.2, 0.05, 0]}
-            style={{
-              fontFamily: 'Arial',
-              fontSize: 20,
-              color: '#ffffff',
-              textAlign: 'center',
-            }}
-          />
-
-          {/* Optional: Instruction text if poster is not fully visible */}
-          {!isTracking && (
-            <ViroText
-              text="Keep poster in view..."
-              position={[0, -0.3, 0]}
-              width={0.6}
-              style={{
-                fontFamily: 'Arial',
-                fontSize: 18,
-                color: '#FF6B6B',
-                textAlign: 'center',
-              }}
-            />
-          )}
         </ViroNode>
       </ViroARImageMarker>
     </ViroARScene>
